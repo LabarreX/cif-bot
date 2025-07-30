@@ -141,7 +141,25 @@ async def hello(ctx):
 # Commande simple : $aide
 @bot.command()
 async def aide(ctx):
-    await ctx.send("Voici les commandes disponibles :\n$invite — Fournis le lien d'invitation du serveur\n$hello — Réponds Salut\n$aide — Affiche ce message")
+    msg = (
+        "Voici les commandes disponibles :\n"
+        "$invite — Fournit le lien d'invitation du serveur\n"
+        "$hello — Réponds Salut\n"
+        "$aide — Affiche ce message\n"
+    )
+
+    # Si l'auteur a le rôle "Modérateur", on ajoute les commandes modération
+    if discord.utils.get(ctx.author.roles, name="Modérateur"):
+        msg += (
+            "\n🔧 Commandes Modération :\n"
+            "$warn <@membre> <raison> — Avertit un membre\n"
+            "$kick <@membre> <raison> — Expulse un membre\n"
+            "$ban <@membre> <raison> — Bannit un membre\n"
+            "$mute <@membre> <raison> — Rend muet (texte)\n"
+            "$unmute <@membre> — Enlève le rôle Muet\n"
+        )
+
+    await ctx.send(msg)
 
 
 #################### Bot Errors ####################
