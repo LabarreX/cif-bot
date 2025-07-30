@@ -3,6 +3,8 @@ from discord.ext import commands
 import time
 import os
 from dotenv import load_dotenv
+from flask import Flask
+import threading
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
@@ -13,7 +15,20 @@ intents.message_content = True  # Nécessaire pour lire le contenu des messages
 
 bot = commands.Bot(command_prefix="$", intents=intents, description="Bot du C.I.F.")
 
+########################################
+# === Flask server to keep port open ===
+app = Flask(__name__)
 
+@app.route("/")
+def home():
+    return "Bot Discord en ligne avec Render Web Service."
+
+def run_web():
+    port = int(os.environ.get("PORT", 10000))  # PORT fourni par Render
+    app.run(host="0.0.0.0", port=port)
+
+threading.Thread(target=run_web).start()
+########################################
 
 ##################### Bot Events #####################
 
