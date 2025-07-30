@@ -1,6 +1,11 @@
 import discord
 from discord.ext import commands
 import time
+import os
+from dotenv import load_dotenv
+
+load_dotenv()
+token = os.getenv("DISCORD_TOKEN")
 
 intents = discord.Intents.default()
 intents.members = True
@@ -138,4 +143,4 @@ async def on_command_error(ctx, error):
 
 #################### Bot Launch ####################
 
-bot.run("MTQwMDA5NTI4NDU0NTE5NjE3NQ.GoKNJi.jYttbZEIyzg_CN1wyWC-B61eRCt_tYLeBiX9pE")
+bot.run(token)
