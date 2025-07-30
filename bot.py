@@ -126,7 +126,7 @@ async def hello(ctx):
 # Commande simple : $aide
 @bot.command()
 async def aide(ctx):
-    await ctx.send("Voici les commandes disponibles :\n$ping — Réponds Pong\n$hello — Réponds Salut\n$aide — Affiche ce message")
+    await ctx.send("Voici les commandes disponibles :\n$invite — Fournis le lien d'invitation du serveur\n$hello — Réponds Salut\n$aide — Affiche ce message")
 
 
 #################### Bot Errors ####################
@@ -135,7 +135,7 @@ async def aide(ctx):
 @bot.event
 async def on_command_error(ctx, error):
     if isinstance(error, commands.CommandNotFound):
-        await ctx.send("❌ Commande inconnue. Tape !aide pour voir les commandes.")
+        await ctx.send("❌ Commande inconnue. Tape $aide pour voir les commandes.")
     else:
         await ctx.send("❗ Une erreur est survenue. Raisons possibles :\n- Vous n'avez pas les permissions nécessaires.\n- Vous n'avez pas ou mal mentionné le membre.")
         raise error  # Affiche l'erreur dans la console pour le développeur
