@@ -318,6 +318,7 @@ async def event(ctx, action, *args):
             return await ctx.send("❌ Utilisation : `$event leave [id]`")
 
         eid = args[0]
+        print(eid, args, events)
         if eid not in events:
             return await ctx.send("❌ ID invalide.")
 
@@ -344,6 +345,8 @@ async def event(ctx, action, *args):
             await ctx.send(f"❌ Événement `{eid}` annulé.")
         else:
             await ctx.send("❌ ID introuvable.")
+    else :
+        await ctx.send("❌ Les commandes disponibles sont :\n`join` et `leave`,\nainsi que `create` et `cancel` pour les modérateurs.")
 
 
 
