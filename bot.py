@@ -204,6 +204,7 @@ async def on_command_error(ctx, error):
 ################# Manage inactivity #################
 
 async def surveiller_inactivite_bot():
+    global bot_last_message
     await bot.wait_until_ready()
     await asyncio.sleep(5)
 
