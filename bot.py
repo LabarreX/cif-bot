@@ -41,26 +41,30 @@ async def on_ready():
 async def on_member_join(member):
     guild = member.guild
 
-    # Récupère les rôles
+    # Rôles
     arrivant_role = discord.utils.get(guild.roles, name="Arrivant")
     modo_role = discord.utils.get(guild.roles, name="Modérateur")
 
-    # Donne le rôle "Arrivant"
-    if arrivant_role:
-        await member.add_roles(arrivant_role)
+    # Retire tous les autres rôles sauf @everyone
+    await member.edit(roles=[arrivant_role])
 
-    # Crée un salon privé de présentation
+    # Crée un salon privé
     overwrites = {
         guild.default_role: discord.PermissionOverwrite(read_messages=False),
         member: discord.PermissionOverwrite(read_messages=True, send_messages=True),
-        modo_role: discord.PermissionOverwrite(read_messages=True, send_messages=True)
+        modo_role: discord.PermissionOverwrite(read_messages=True, send_messages=True),
+        guild.me: discord.PermissionOverwrite(read_messages=True)
     }
 
     channel_name = f"présentation-{member.name.lower()}"
-    presentation_channel = await guild.create_text_channel(channel_name, overwrites=overwrites, reason="Salon de présentation privé")
+    presentation_channel = await guild.create_text_channel(
+        channel_name,
+        overwrites=overwrites,
+        reason="Salon de présentation privé"
+    )
 
     await presentation_channel.send(
-        f"👋 Bienvenue {member.mention} !\nMerci d'écrire ici une petite **présentation** (prénom, centres d’intérêt, pourquoi tu rejoins le serveur, etc.).\nUn modérateur te validera rapidement. 😊"
+        f"👋 Bienvenue {member.mention} !\nMerci d'écrire ici une petite **présentation** (prénom, centres d’intérêt, etc.).\nUn modérateur te validera ensuite. 😊"
     )
 
 
