@@ -275,7 +275,7 @@ async def event(ctx, action, *args):
         
         description = " ".join(desc_parts)
         dt = datetime.datetime.strptime(f"{date_str} {heure_str}", "%d/%m %H:%M")
-        event_id = len(events)
+        event_id = max([eid for eid, e in events.items()])+1
 
         events[event_id] = {
             "nom": nom,
@@ -344,8 +344,18 @@ async def event(ctx, action, *args):
             await ctx.send(f"❌ Événement `{eid}` annulé.")
         else:
             await ctx.send("❌ ID introuvable.")
+
+    elif action == "info":
+        for arg in args :
+            eid = int(arg)
+            if eid in events :
+                e = events[eid]
+                date = datetime.datetime.strptime(e["datetime"], "%Y-%m-%d %H:%M")
+                await ctx.send(f"**{e['nom']}** (ID : {eid}) aura lieu le {date.strftime('%d/%m %H:%M').split()[0]} à {date.strftime('%d/%m %H:%M').split()[1]}.\n{len(e['participants'])} participants sont inscrits.\nDescription : {e['description']} ")
+            else :
+                await ctx.send(f"L'événement {eid} m'existe pas.")
     else :
-        await ctx.send("❌ Les commandes disponibles sont :\n`join` et `leave`,\nainsi que `create` et `cancel` pour les modérateurs.")
+        await ctx.send("❌ Les commandes disponibles sont :\n`join`, `info` et `leave`,\nainsi que `create` et `cancel` pour les modérateurs.")
 
 
 
