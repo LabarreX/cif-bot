@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 import time
+import asyncio
 import os
 from dotenv import load_dotenv
 from flask import Flask
@@ -122,7 +123,7 @@ async def welcome(ctx):
 
     # Supprime le salon
     await ctx.send("✅ Présentation acceptée. Ce salon sera supprimé dans 5 secondes.")
-    await time.sleep(5)
+    await asyncio.sleep(5)
     await channel.delete()
 
 
