@@ -113,7 +113,7 @@ async def welcome(ctx):
         return
 
     # Transfère la présentation
-    await public_channel.send(f"📣 **{member.mention} s’est présenté·e :**\n{user_message.content}")
+    await public_channel.send(f"**📣 Présentation de {member.mention} :**\n{user_message.content}")
 
     # Attribue le rôle "Membre" et retire "Arrivant"
     if membre_role:
