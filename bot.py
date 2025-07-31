@@ -121,7 +121,7 @@ async def unmute(ctx, member: discord.Member):
     mute_role = discord.utils.get(ctx.guild.roles, name="Muet")
     if mute_role in member.roles:
         await member.remove_roles(mute_role)
-        await ctx.send(f"✅ {member.mention} a été unmute par {ctx.author.mention.")
+        await ctx.send(f"✅ {member.mention} a été unmute par {ctx.author.mention}.")
         try :
             await member.send(f"✅ Vous avez été unmute du serveur {ctx.guild.name} par {ctx.author.mention}.")
         except :
