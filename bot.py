@@ -59,7 +59,7 @@ async def clear(ctx, nombre: int):
 # Kick un membre : $kick <membre> <raison>
 @bot.command()
 @commands.has_role("Modérateur")
-async def kick(ctx, member: discord.Member, reason="Aucune raison fournie"):
+async def kick(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
     await member.kick(reason=reason)
     await ctx.send(f"✅ {member.mention} a été kick pour la raison :\n{reason}.")
     try :
@@ -71,7 +71,7 @@ async def kick(ctx, member: discord.Member, reason="Aucune raison fournie"):
 # Ban un membre : $ban <membre> <raison>
 @bot.command()
 @commands.has_role("Modérateur")
-async def ban(ctx, member: discord.Member, reason="Aucune raison fournie"):
+async def ban(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
     await member.ban(reason=reason)
     await ctx.send(f"✅ {member.mention} a été ban pour la raison :\n{reason}.")
     try :
@@ -83,7 +83,7 @@ async def ban(ctx, member: discord.Member, reason="Aucune raison fournie"):
 # Warn un membre : $warn <membre> <raison>\
 @bot.command()
 @commands.has_role("Modérateur")
-async def warn(ctx, member: discord.Member, reason="Aucune raison fournie"):
+async def warn(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
     await ctx.send(f"⚠️ Attention, {member.mention}, votre comportement pourrait vous faire kick :\n{reason}.")
     try :
         await member.send(f"⚠️ Attention, votre comportement pourrait vous faire kick :\n{reason}.")
@@ -93,7 +93,7 @@ async def warn(ctx, member: discord.Member, reason="Aucune raison fournie"):
 # Mute un membre : $mute <membre> <raison>
 @bot.command()
 @commands.has_role("Modérateur")
-async def mute(ctx, member: discord.Member, reason="Aucune raison fournie"):
+async def mute(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
     mute_role = discord.utils.get(ctx.guild.roles, name="Muet")
 
     if not mute_role:
