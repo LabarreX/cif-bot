@@ -5,6 +5,7 @@ import os
 from dotenv import load_dotenv
 from flask import Flask
 import threading
+import datetime
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
@@ -38,6 +39,7 @@ threading.Thread(target=run_web).start()
 async def on_ready():
     print(f"✅ Connecté en tant que {bot.user}")
     await bot.change_presence(activity=discord.Game(name="aider le C.I.F."))
+    bot.loop.create_task(surveiller_inactivite_bot())
 
 @bot.event
 async def on_member_join(member):
