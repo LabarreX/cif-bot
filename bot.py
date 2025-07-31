@@ -39,13 +39,88 @@ async def on_ready():
 
 @bot.event
 async def on_member_join(member):
-    channel = discord.utils.get(member.guild.text_channels, name="général")  # à adapter
-    await channel.send(f"👋 Bienvenue {member.mention} sur le serveur !")
+    guild = member.guild
+
+    # Récupère les rôles
+    arrivant_role = discord.utils.get(guild.roles, name="Arrivant")
+    modo_role = discord.utils.get(guild.roles, name="Modérateur")
+
+    # Donne le rôle "Arrivant"
+    if arrivant_role:
+        await member.add_roles(arrivant_role)
+
+    # Crée un salon privé de présentation
+    overwrites = {
+        guild.default_role: discord.PermissionOverwrite(read_messages=False),
+        member: discord.PermissionOverwrite(read_messages=True, send_messages=True),
+        modo_role: discord.PermissionOverwrite(read_messages=True, send_messages=True)
+    }
+
+    channel_name = f"présentation-{member.name.lower()}"
+    presentation_channel = await guild.create_text_channel(channel_name, overwrites=overwrites, reason="Salon de présentation privé")
+
+    await presentation_channel.send(
+        f"👋 Bienvenue {member.mention} !\nMerci d'écrire ici une petite **présentation** (prénom, centres d’intérêt, pourquoi tu rejoins le serveur, etc.).\nUn modérateur te validera rapidement. 😊"
+    )
+
 
 
 #################### Bot Commands ####################
 
 ### Modérateurs
+
+# Autorise la présentation d'un arrivant : $welcome
+@bot.command()
+@commands.has_role("Modérateur")
+async def welcome(ctx):
+    channel = ctx.channel
+    guild = ctx.guild
+
+    # Vérifie que c’est un salon de présentation
+    if not channel.name.startswith("présentation-"):
+        await ctx.send("❌ Cette commande ne peut être utilisée que dans un salon de présentation.")
+        return
+
+    # Récupère le membre à partir du nom du salon
+    member_name = channel.name.replace("présentation-", "")
+    member = discord.utils.find(lambda m: m.name.lower() == member_name, guild.members)
+
+    if not member:
+        await ctx.send("❌ Membre non trouvé.")
+        return
+
+    # Récupère les rôles
+    membre_role = discord.utils.get(guild.roles, name="Membre")
+    arrivant_role = discord.utils.get(guild.roles, name="Arrivant")
+
+    # Récupère le message de présentation le plus ancien de l'utilisateur
+    messages = [msg async for msg in channel.history(limit=50, oldest_first=True)]
+    user_message = next((m for m in messages if m.author == member), None)
+
+    if not user_message:
+        await ctx.send("❌ Aucun message de présentation trouvé.")
+        return
+
+    # Trouve le salon #présentation
+    public_channel = discord.utils.get(guild.text_channels, name="présentation")
+    if not public_channel:
+        await ctx.send("❌ Le salon #présentation n'existe pas.")
+        return
+
+    # Transfère la présentation
+    await public_channel.send(f"📣 **{member.mention} s’est présenté·e :**\n{user_message.content}")
+
+    # Attribue le rôle "Membre" et retire "Arrivant"
+    if membre_role:
+        await member.add_roles(membre_role)
+    if arrivant_role and arrivant_role in member.roles:
+        await member.remove_roles(arrivant_role)
+
+    # Supprime le salon
+    await ctx.send("✅ Présentation acceptée. Ce salon sera supprimé dans 5 secondes.")
+    await time.sleep(5)
+    await channel.delete()
+
 
 # Supprimer des messages : $clear <nombre>
 @bot.command()
