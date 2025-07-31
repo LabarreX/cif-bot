@@ -302,7 +302,7 @@ async def event(ctx, action, *args):
         if len(args) != 1:
             return await ctx.send("❌ Utilisation : `$event join [id]`")
 
-        eid = args[0]
+        eid = int(args[0])
         if eid not in events:
             return await ctx.send("❌ ID invalide.")
         user_id = str(ctx.author.id)
@@ -317,9 +317,7 @@ async def event(ctx, action, *args):
         if len(args) != 1:
             return await ctx.send("❌ Utilisation : `$event leave [id]`")
 
-        for eid, e in events.items() :
-            await ctx.send(str(eid)+"\n"+" ".join(e))
-        eid = args[0]
+        eid = int(args[0])
         if eid not in events:
             return await ctx.send("❌ ID invalide.")
 
@@ -338,7 +336,7 @@ async def event(ctx, action, *args):
             return await ctx.send("🚫 Seuls les modérateurs peuvent annuler un événement.")
         if len(args) != 1:
             return await ctx.send("❌ Utilisation : `$event cancel [id]`")
-        eid = args[0]
+        eid = int(args[0])
         if eid in events:
             del events[eid]
             with open("events.json", "w") as f:
