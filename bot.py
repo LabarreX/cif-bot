@@ -87,9 +87,9 @@ async def ban(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
 @commands.has_role("Modérateur")
 async def warn(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
     await ctx.channel.purge(limit = 1)
-    await ctx.send(f"⚠️ Attention, {member.mention}, votre comportement pourrait avoir des conséquences !\nMessage de {ctx.author.mention} car :\n{reason}.")
+    await ctx.send(f"⚠️ Attention, {member.mention}, votre comportement pourrait avoir des conséquences !\nMessage de {ctx.author.mention} car : {reason}.")
     try :
-        await member.send(f"⚠️ Attention, votre comportement pourrait vous faire kick :\n{reason}.")
+        await member.send(f"⚠️ Attention, votre comportement pourrait avoir des conséquences !\nMessage de {ctx.author.mention} car : {reason}.")
     except :
         print("Impossible d'envoyer un message à ce membre.")
 
@@ -121,7 +121,7 @@ async def unmute(ctx, member: discord.Member):
     mute_role = discord.utils.get(ctx.guild.roles, name="Muet")
     if mute_role in member.roles:
         await member.remove_roles(mute_role)
-        await ctx.send(f"✅ {member.mention} a été unmute.")
+        await ctx.send(f"✅ {member.mention} a été unmute par {ctx.author.mention.")
         try :
             await member.send(f"✅ Vous avez été unmute du serveur {ctx.guild.name} par {ctx.author.mention}.")
         except :
