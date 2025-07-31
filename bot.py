@@ -317,8 +317,9 @@ async def event(ctx, action, *args):
         if len(args) != 1:
             return await ctx.send("❌ Utilisation : `$event leave [id]`")
 
+        for eid, e in events.items() :
+            await ctx.send(str(eid)+"\n"+" ".join(e))
         eid = args[0]
-        await ctx.send(" ".join(args)+"\n"+str(eid))
         if eid not in events:
             return await ctx.send("❌ ID invalide.")
 
