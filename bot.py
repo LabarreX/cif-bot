@@ -73,7 +73,7 @@ async def kick(ctx, member: discord.Member, reason="Aucune raison fournie"):
         await member.send(f"❌ Vous avez été kick du serveur {ctx.guild.name} pour la raison suivante :\n{reason}.")
     except :
         await ctx.send(f"❌ {member.mention} n'a pas pu être averti.")
-        print("Impossible d'envoyer un message à ce membre.")\
+        print("Impossible d'envoyer un message à ce membre.")
     bot_last_message = datetime.datetime.utcnow()
 
 # Ban un membre : $ban <membre> <raison>
