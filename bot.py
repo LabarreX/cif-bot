@@ -1,8 +1,9 @@
 import discord
 from discord.ext import commands
-import time
 import asyncio
 import os
+import datetime
+import json
 from dotenv import load_dotenv
 from flask import Flask
 import threading
@@ -31,13 +32,58 @@ def run_web():
 threading.Thread(target=run_web).start()
 ########################################
 
+events = {}
+try:
+    with open("events.json", "r") as f:
+        events = json.load(f)
+except:
+    pass
+
 ##################### Bot Events #####################
 
+# Lancement
 @bot.event
 async def on_ready():
     print(f"✅ Connecté en tant que {bot.user}")
     await bot.change_presence(activity=discord.Game(name="aider le C.I.F."))
+    event_reminder_loop.start()
 
+# Rappel des événements
+@tasks.loop(hours=24)
+async def event_reminder_loop():
+    await bot.wait_until_ready()
+    today = datetime.datetime.utcnow()
+
+    for guild in bot.guilds:
+        annonces_channel = discord.utils.get(guild.text_channels, name="annonces")
+        if not annonces_channel:
+            continue  # saute si pas de canal "annonces"
+
+        for event_id, event_data in events.items():
+            event_time = datetime.datetime.strptime(event_data["datetime"], "%Y-%m-%d %H:%M")
+            delta = event_time - today
+
+            if delta.days == 1:
+                participants = event_data["participants"]
+                nom = event_data["nom"]
+                desc = event_data["description"]
+                date_str = event_time.strftime("%d/%m à %H:%M")
+
+                # Message à envoyer
+                reminder_msg = f"📣 Rappel : l’événement **{nom}** aura lieu **demain ({date_str})** !\nDescription : {desc}"
+
+                # Envoi DM aux participants
+                for user_id in participants:
+                    user = await bot.fetch_user(int(user_id))
+                    try:
+                        await user.send(reminder_msg)
+                    except:
+                        print(f"Impossible d’envoyer un DM à {user.name}.")
+
+                # Annonce publique
+                await annonces_channel.send(reminder_msg)
+
+# Nouveaux membres
 @bot.event
 async def on_member_join(member):
     guild = member.guild
@@ -67,7 +113,6 @@ async def on_member_join(member):
     await presentation_channel.send(
         f"👋 Bienvenue {member.mention} !\nMerci d'écrire ici une petite **présentation** (prénom, centres d’intérêt, etc.).\nUn modérateur te validera ensuite. 😊"
     )
-
 
 
 #################### Bot Commands ####################
@@ -126,6 +171,12 @@ async def welcome(ctx):
     await asyncio.sleep(5)
     await channel.delete()
 
+# Active le slowmode : $slowmode <durée (secondes)>
+@bot.command()
+@commands.has_permissions(manage_channels=True)
+async def slowmode(ctx, seconds: int):
+    await ctx.channel.edit(slowmode_delay=seconds)
+    await ctx.send(f"🐢 Mode lent défini à {seconds} seconde(s).")
 
 # Supprimer des messages : $clear <nombre>
 @bot.command()
@@ -133,7 +184,7 @@ async def welcome(ctx):
 async def clear(ctx, nombre: int):
     await ctx.channel.purge(limit = nombre+1)
     await ctx.send(f"✅ {nombre} messages ont été supprimés.")
-    time.sleep(2)
+    await asyncio.sleep(2)
     await ctx.channel.purge(limit = 1)
 
 # Kick un membre : $kick <membre> <raison>
@@ -208,6 +259,92 @@ async def unmute(ctx, member: discord.Member):
             print("Impossible d'envoyer un message à ce membre.")
     else :
         await ctx.send(f"❌ {member.mention} n'était pas mute.")
+
+# Gestion des événements
+@bot.command()
+async def event(ctx, action, *args):
+    global events
+
+    if action == "create":
+        if not discord.utils.get(ctx.author.roles, name="Modérateur"):
+            return await ctx.send("🚫 Seuls les modérateurs peuvent créer un événement.")
+        if len(args) < 3:
+            return await ctx.send("❌ Utilisation : `$event create [nom] [date JJ/MM] [heure HH:MM] [description (optionnelle)]`")
+        
+        nom, date_str, heure_str, *desc_parts = args
+        
+        description = " ".join(desc_parts)
+        dt = datetime.datetime.strptime(f"{date_str} {heure_str}", "%d/%m %H:%M")
+        event_id = len(events)
+
+        events[event_id] = {
+            "nom": nom,
+            "datetime": dt.strftime("%Y-%m-%d %H:%M"),
+            "description": description,
+            "participants": [str(ctx.author.id)]
+        }
+
+        with open("events.json", "w") as f:
+            json.dump(events, f)
+
+        await ctx.send(f"✅ Événement **{nom}** créé pour le **{date_str} à {heure_str}** avec l’ID `{event_id}`.")
+
+    elif action == "list":
+        if not events:
+            return await ctx.send("📭 Aucun événement.")
+        msg = "📅 Événements à venir :\n"
+        for eid, e in events.items():
+            date = datetime.datetime.strptime(e["datetime"], "%Y-%m-%d %H:%M")
+            msg += f"- **{e['nom']}** ({eid}) — {date.strftime('%d/%m %H:%M')} — {len(e['participants'])} participant(s)\n"
+        await ctx.send(msg)
+
+    elif action == "join":
+        if len(args) != 1:
+            return await ctx.send("❌ Utilisation : `$event join [id]`")
+
+        eid = args[0]
+        if eid not in events:
+            return await ctx.send("❌ ID invalide.")
+        user_id = str(ctx.author.id)
+        if user_id in events[eid]["participants"]:
+            return await ctx.send("❗ Tu es déjà inscrit.")
+        events[eid]["participants"].append(user_id)
+        with open("events.json", "w") as f:
+            json.dump(events, f)
+        await ctx.send(f"✅ Tu participes à **{events[eid]['nom']}** !")
+
+    elif action == "leave":
+        if len(args) != 1:
+            return await ctx.send("❌ Utilisation : `$event leave [id]`")
+
+        eid = args[0]
+        if eid not in events:
+            return await ctx.send("❌ ID invalide.")
+
+        user_id = str(ctx.author.id)
+        if user_id not in events[eid]["participants"]:
+            return await ctx.send("❌ Tu ne participes pas à cet événement.")
+        events[eid]["participants"].remove(user_id)
+
+        with open("events.json", "w") as f:
+            json.dump(events, f)
+
+        await ctx.send(f"🚪 Tu t’es désinscrit de **{events[eid]['nom']}**.")
+
+    elif action == "cancel":
+        if not discord.utils.get(ctx.author.roles, name="Modérateur"):
+            return await ctx.send("🚫 Seuls les modérateurs peuvent annuler un événement.")
+        if len(args) != 1:
+            return await ctx.send("❌ Utilisation : `$event cancel [id]`")
+        eid = args[0]
+        if eid in events:
+            del events[eid]
+            with open("events.json", "w") as f:
+                json.dump(events, f)
+            await ctx.send(f"❌ Événement `{eid}` annulé.")
+        else:
+            await ctx.send("❌ ID introuvable.")
+
 
 
 ### @everyone
