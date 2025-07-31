@@ -275,7 +275,10 @@ async def event(ctx, action, *args):
         
         description = " ".join(desc_parts)
         dt = datetime.datetime.strptime(f"{date_str} {heure_str}", "%d/%m %H:%M")
-        event_id = max([eid for eid, e in events.items()])+1
+        try :
+            event_id = max([eid for eid, e in events.items()])+1
+        except :
+            event_id = 0
 
         events[event_id] = {
             "nom": nom,
