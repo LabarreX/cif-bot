@@ -152,7 +152,7 @@ async def welcome(ctx):
         return
 
     # Trouve le salon #présentation
-    public_channel = discord.utils.get(guild.text_channels, name="présentation")
+    public_channel = discord.utils.get(guild.text_channels, name="👋🏻-présentation-👋🏻")
     if not public_channel:
         await ctx.send("❌ Le salon #présentation n'existe pas.")
         return
