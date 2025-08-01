@@ -175,6 +175,7 @@ async def welcome(ctx):
 @bot.command()
 @commands.has_permissions(manage_channels=True)
 async def slowmode(ctx, seconds: int):
+    await ctx.channel.purge(limit = 1)
     await ctx.channel.edit(slowmode_delay=seconds)
     await ctx.send(f"🐢 Mode lent défini à {seconds} seconde(s).")
 
@@ -229,6 +230,7 @@ async def warn(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
 @commands.has_role("Modérateur")
 async def mute(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
     mute_role = discord.utils.get(ctx.guild.roles, name="Muet")
+    membre_role = discord.utils.get(ctx.guild.roles, name="Membre")
 
     if not mute_role:
         mute_role = await ctx.guild.create_role(name="Muet")
@@ -236,6 +238,7 @@ async def mute(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
             await channel.set_permissions(mute_role, send_messages=False, speak=False)
     
     await member.add_roles(mute_role, reason=reason)
+    await member.remove_roles(membre_role)
     await ctx.channel.purge(limit = 1)
     await ctx.send(f"✅ {member.mention} a été mute par {ctx.author.mention} pour la raison suivante :\n{reason}.")
     try :
@@ -259,6 +262,10 @@ async def unmute(ctx, member: discord.Member):
             print("Impossible d'envoyer un message à ce membre.")
     else :
         await ctx.send(f"❌ {member.mention} n'était pas mute.")
+
+
+
+### @everyone
 
 # Gestion des événements
 @bot.command()
@@ -290,9 +297,11 @@ async def event(ctx, action, *args):
         with open("events.json", "w") as f:
             json.dump(events, f)
 
-        await ctx.send(f"✅ Événement **{nom}** créé pour le **{date_str} à {heure_str}** avec l’ID `{event_id}`.")
+        await ctx.channel.purge(limit = 1)
+        await ctx.send(f"✅ Événement **{nom}** créé par {ctx.author.mention} pour le **{date_str} à {heure_str}** avec l’ID `{event_id}`.")
 
     elif action == "list":
+        await ctx.channel.purge(limit = 1)
         if not events:
             return await ctx.send("📭 Aucun événement.")
         msg = "📅 Événements à venir :\n"
@@ -312,9 +321,10 @@ async def event(ctx, action, *args):
         if user_id in events[eid]["participants"]:
             return await ctx.send("❗ Tu es déjà inscrit.")
         events[eid]["participants"].append(user_id)
+        await ctx.channel.purge(limit = 1)
         with open("events.json", "w") as f:
             json.dump(events, f)
-        await ctx.send(f"✅ Tu participes à **{events[eid]['nom']}** !")
+        await ctx.send(f"✅ {ctx.author.mention}, tu participes bien à **{events[eid]['nom']}** !")
 
     elif action == "leave":
         if len(args) != 1:
@@ -328,11 +338,11 @@ async def event(ctx, action, *args):
         if user_id not in events[eid]["participants"]:
             return await ctx.send("❌ Tu ne participes pas à cet événement.")
         events[eid]["participants"].remove(user_id)
-
+        await ctx.channel.purge(limit = 1)
         with open("events.json", "w") as f:
             json.dump(events, f)
 
-        await ctx.send(f"🚪 Tu t’es désinscrit de **{events[eid]['nom']}**.")
+        await ctx.send(f"🚪 {ctx.author.mention}, tu t’es bien désinscrit de **{events[eid]['nom']}**.")
 
     elif action == "cancel":
         if not discord.utils.get(ctx.author.roles, name="Modérateur"):
@@ -344,7 +354,7 @@ async def event(ctx, action, *args):
             del events[eid]
             with open("events.json", "w") as f:
                 json.dump(events, f)
-            await ctx.send(f"❌ Événement `{eid}` annulé.")
+            await ctx.send(f"❌ Événement `{eid}` annulé par {ctx.author.mention}.")
         else:
             await ctx.send("❌ ID introuvable.")
 
@@ -360,13 +370,10 @@ async def event(ctx, action, *args):
     else :
         await ctx.send("❌ Les commandes disponibles sont :\n`join`, `info` et `leave`,\nainsi que `create` et `cancel` pour les modérateurs.")
 
-
-
-### @everyone
-
 # Obtenir le lien d'invitation du serveur : $invite
 @bot.command()
 async def invite(ctx):
+    await ctx.channel.purge(limit = 1)
     await ctx.send("🔗 Voici le lien d'invitation du serveur : https://discord.gg/qwKMe6FeKT")
     await ctx.send("⚠️ Veuillez ne l'envoyer qu'à des personnes réellement intéressées, et ne pas le communiquer aux personnes qui se sont faites kick.")
 
@@ -378,6 +385,7 @@ async def hello(ctx):
 # Commande simple : $aide
 @bot.command()
 async def aide(ctx):
+    await ctx.channel.purge(limit = 1)
     msg = (
         "Voici les commandes disponibles :\n"
         "$invite — Fournit le lien d'invitation du serveur\n"
