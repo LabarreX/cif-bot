@@ -374,7 +374,7 @@ async def event(ctx, action, *args):
 @bot.command()
 async def invite(ctx):
     await ctx.channel.purge(limit = 1)
-    await ctx.send("🔗 Voici le lien d'invitation du serveur : https://discord.gg/qwKMe6FeKT")
+    await ctx.send("🔗 Voici le lien d'invitation du serveur : https://discord.gg/7M2CUX7Qmw")
     await ctx.send("⚠️ Veuillez ne l'envoyer qu'à des personnes réellement intéressées, et ne pas le communiquer aux personnes qui se sont faites kick.")
 
 # Dire bonjour : $hello
