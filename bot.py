@@ -44,7 +44,8 @@ except:
 # Lancement
 @bot.event
 async def on_ready():
-    await bot.tree.sync()
+    for guild in bot.guilds:
+        await bot.tree.sync(guild=guild)
     print(f"✅ Connecté en tant que {bot.user}")
     await bot.change_presence(activity=discord.Game(name="aider le C.I.F."))
     event_reminder_loop.start()
@@ -121,7 +122,7 @@ async def on_member_join(member):
 ### Modérateurs
 
 # Autorise la présentation d'un arrivant : $welcome
-@bot.hybrid_command()
+@bot.hybrid_command(description = "Accepter la présentation d'un nouveau membre")
 @commands.has_role("Modérateur")
 async def welcome(ctx):
     channel = ctx.channel
@@ -173,26 +174,26 @@ async def welcome(ctx):
     await channel.delete()
 
 # Active le slowmode : $slowmode <durée (secondes)>
-@bot.hybrid_command()
+@bot.hybrid_command(description = "Active le slowmode sur le salon où cette commande est utilisée")
 @commands.has_permissions(manage_channels=True)
 async def slowmode(ctx, seconds: int):
     await ctx.channel.edit(slowmode_delay=seconds)
     await ctx.send(f"🐢 Mode lent défini à {seconds} seconde(s).")
 
 # Supprimer des messages : $clear <nombre>
-@bot.hybrid_command()
+@bot.hybrid_command(description = "Supprime les x derniers messages")
 @commands.has_role("Modérateur")
 async def clear(ctx, nombre: int):
-    message = await ctx.channel.history(limit=1).flatten()[0]
-    if "$clear" in message.content :
-        await message.delete()
-    await ctx.channel.purge(limit = nombre)
-    await ctx.send(f"✅ {nombre} messages ont été supprimés.")
+    # Supprime la commande de l'historique seulement si c'est en prefix ($)
+    if ctx.message:
+        await ctx.message.delete()
+    deleted = await ctx.channel.purge(limit=nombre)
+    confirmation = await ctx.send(f"✅ {len(deleted)} messages ont été supprimés.")
     await asyncio.sleep(2)
-    await ctx.channel.purge(limit = 1)
+    await confirmation.delete()
 
 # Kick un membre : $kick <membre> <raison>
-@bot.hybrid_command()
+@bot.hybrid_command(description = "Kick le membre sélectionné et lui envoie un message")
 @commands.has_role("Modérateur")
 async def kick(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
     await member.kick(reason=reason)
@@ -204,7 +205,7 @@ async def kick(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
         print("Impossible d'envoyer un message à ce membre.")
 
 # Ban un membre : $ban <membre> <raison>
-@bot.hybrid_command()
+@bot.hybrid_command(description = "Ban le membre sélectionné et lui envoie un message")
 @commands.has_role("Modérateur")
 async def ban(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
     await member.ban(reason=reason)
@@ -216,7 +217,7 @@ async def ban(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
         print("Impossible d'envoyer un message à ce membre.")
 
 # Warn un membre : $warn <membre> <raison>\
-@bot.hybrid_command()
+@bot.hybrid_command(description = "Préviens le membre sélectionné de son mauvais comportment")
 @commands.has_role("Modérateur")
 async def warn(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
     await ctx.send(f"⚠️ Attention, {member.mention}, votre comportement pourrait avoir des conséquences !\nMessage de {ctx.author.mention} car : {reason}.")
@@ -226,7 +227,7 @@ async def warn(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
         print("Impossible d'envoyer un message à ce membre.")
 
 # Mute un membre : $mute <membre> <raison>
-@bot.hybrid_command()
+@bot.hybrid_command(description = "Mute le membre sélectionné")
 @commands.has_role("Modérateur")
 async def mute(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
     mute_role = discord.utils.get(ctx.guild.roles, name="Muet")
@@ -247,7 +248,7 @@ async def mute(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
         print("Impossible d'envoyer un message à ce membre.")
 
 # Unmute un membre : $unmute <membre>
-@bot.hybrid_command()
+@bot.hybrid_command(description = "Unmute le membre sélectionné")
 @commands.has_role("Modérateur")
 async def unmute(ctx, member: discord.Member):
     mute_role = discord.utils.get(ctx.guild.roles, name="Muet")
@@ -266,7 +267,7 @@ async def unmute(ctx, member: discord.Member):
 ### @everyone
 
 # Gestion des événements
-@bot.hybrid_command()
+@bot.hybrid_command(description = "Permet de créer, annuler, s'inscrire de ou se désinscrire d'un événement")
 async def event(ctx, action, args):
     global events
     args = args.split()
@@ -366,18 +367,18 @@ async def event(ctx, action, args):
         await ctx.send("❌ Les commandes disponibles sont :\n`join`, `info` et `leave`,\nainsi que `create` et `cancel` pour les modérateurs.")
 
 # Obtenir le lien d'invitation du serveur : $invite
-@bot.hybrid_command()
+@bot.hybrid_command(description = "Permet d'obtenir le lien d'invitation du serveur")
 async def invite(ctx):
     await ctx.send("🔗 Voici le lien d'invitation du serveur : https://discord.gg/7M2CUX7Qmw")
     await ctx.send("⚠️ Veuillez ne l'envoyer qu'à des personnes réellement intéressées, et ne pas le communiquer aux personnes qui se sont faites kick.")
 
 # Dire bonjour : $hello
-@bot.hybrid_command()
+@bot.hybrid_command(description = "Réponds salut")
 async def hello(ctx):
     await ctx.send("Salut ! 👋")
 
 # Commande simple : $aide
-@bot.hybrid_command()
+@bot.hybrid_command(description = "Affiche toutes les commandes disponibles")
 async def aide(ctx):
     msg = (
         "Voici les commandes disponibles :\n"
