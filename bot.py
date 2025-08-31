@@ -121,7 +121,7 @@ async def on_member_join(member):
 ### Modérateurs
 
 # Autorise la présentation d'un arrivant : $welcome
-@bot.command()
+@bot.hybrid_command()
 @commands.has_role("Modérateur")
 async def welcome(ctx):
     channel = ctx.channel
@@ -173,28 +173,29 @@ async def welcome(ctx):
     await channel.delete()
 
 # Active le slowmode : $slowmode <durée (secondes)>
-@bot.command()
+@bot.hybrid_command()
 @commands.has_permissions(manage_channels=True)
 async def slowmode(ctx, seconds: int):
-    await ctx.channel.purge(limit = 1)
     await ctx.channel.edit(slowmode_delay=seconds)
     await ctx.send(f"🐢 Mode lent défini à {seconds} seconde(s).")
 
 # Supprimer des messages : $clear <nombre>
-@bot.command()
+@bot.hybrid_command()
 @commands.has_role("Modérateur")
 async def clear(ctx, nombre: int):
-    await ctx.channel.purge(limit = nombre+1)
+    message = await ctx.channel.history(limit=1).flatten()[0]
+    if "$clear" in message.content :
+        await message.delete()
+    await ctx.channel.purge(limit = nombre)
     await ctx.send(f"✅ {nombre} messages ont été supprimés.")
     await asyncio.sleep(2)
     await ctx.channel.purge(limit = 1)
 
 # Kick un membre : $kick <membre> <raison>
-@bot.command()
+@bot.hybrid_command()
 @commands.has_role("Modérateur")
 async def kick(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
     await member.kick(reason=reason)
-    await ctx.channel.purge(limit = 1)
     await ctx.send(f"✅ {member.mention} a été kick par {ctx.author.mention} pour la raison :\n{reason}.")
     try :
         await member.send(f"❌ Vous avez été kick du serveur {ctx.guild.name} par {ctx.author.mention} pour la raison suivante :\n{reason}.")
@@ -203,11 +204,10 @@ async def kick(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
         print("Impossible d'envoyer un message à ce membre.")
 
 # Ban un membre : $ban <membre> <raison>
-@bot.command()
+@bot.hybrid_command()
 @commands.has_role("Modérateur")
 async def ban(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
     await member.ban(reason=reason)
-    await ctx.channel.purge(limit = 1)
     await ctx.send(f"✅ {member.mention} a été ban par {ctx.author.mention} pour la raison :\n{reason}.")
     try :
         await member.send(f"❌ Vous avez été ban du serveur {ctx.guild.name} par {ctx.author.mention} pour la raison suivante :\n{reason}.")
@@ -216,10 +216,9 @@ async def ban(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
         print("Impossible d'envoyer un message à ce membre.")
 
 # Warn un membre : $warn <membre> <raison>\
-@bot.command()
+@bot.hybrid_command()
 @commands.has_role("Modérateur")
 async def warn(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
-    await ctx.channel.purge(limit = 1)
     await ctx.send(f"⚠️ Attention, {member.mention}, votre comportement pourrait avoir des conséquences !\nMessage de {ctx.author.mention} car : {reason}.")
     try :
         await member.send(f"⚠️ Attention, votre comportement pourrait avoir des conséquences !\nMessage de {ctx.author.mention} car : {reason}.")
@@ -227,7 +226,7 @@ async def warn(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
         print("Impossible d'envoyer un message à ce membre.")
 
 # Mute un membre : $mute <membre> <raison>
-@bot.command()
+@bot.hybrid_command()
 @commands.has_role("Modérateur")
 async def mute(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
     mute_role = discord.utils.get(ctx.guild.roles, name="Muet")
@@ -240,7 +239,6 @@ async def mute(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
     
     await member.add_roles(mute_role, reason=reason)
     await member.remove_roles(membre_role)
-    await ctx.channel.purge(limit = 1)
     await ctx.send(f"✅ {member.mention} a été mute par {ctx.author.mention} pour la raison suivante :\n{reason}.")
     try :
         await member.send(f"❌ Vous avez été mute du serveur {ctx.guild.name} par {ctx.author.mention} pour la raison suivante :\n{reason}.")
@@ -249,10 +247,9 @@ async def mute(ctx, member: discord.Member, *, reason="Aucune raison fournie"):
         print("Impossible d'envoyer un message à ce membre.")
 
 # Unmute un membre : $unmute <membre>
-@bot.command()
+@bot.hybrid_command()
 @commands.has_role("Modérateur")
 async def unmute(ctx, member: discord.Member):
-    await ctx.channel.purge(limit = 1)
     mute_role = discord.utils.get(ctx.guild.roles, name="Muet")
     if mute_role in member.roles:
         await member.remove_roles(mute_role)
@@ -269,7 +266,7 @@ async def unmute(ctx, member: discord.Member):
 ### @everyone
 
 # Gestion des événements
-@bot.command()
+@bot.hybrid_command()
 async def event(ctx, action, *args):
     global events
 
@@ -298,11 +295,9 @@ async def event(ctx, action, *args):
         with open("events.json", "w") as f:
             json.dump(events, f)
 
-        await ctx.channel.purge(limit = 1)
         await ctx.send(f"✅ Événement **{nom}** créé par {ctx.author.mention} pour le **{date_str} à {heure_str}** avec l’ID `{event_id}`.")
 
     elif action == "list":
-        await ctx.channel.purge(limit = 1)
         if not events:
             return await ctx.send("📭 Aucun événement.")
         msg = "📅 Événements à venir :\n"
@@ -322,7 +317,6 @@ async def event(ctx, action, *args):
         if user_id in events[eid]["participants"]:
             return await ctx.send("❗ Tu es déjà inscrit.")
         events[eid]["participants"].append(user_id)
-        await ctx.channel.purge(limit = 1)
         with open("events.json", "w") as f:
             json.dump(events, f)
         await ctx.send(f"✅ {ctx.author.mention}, tu participes bien à **{events[eid]['nom']}** !")
@@ -339,7 +333,6 @@ async def event(ctx, action, *args):
         if user_id not in events[eid]["participants"]:
             return await ctx.send("❌ Tu ne participes pas à cet événement.")
         events[eid]["participants"].remove(user_id)
-        await ctx.channel.purge(limit = 1)
         with open("events.json", "w") as f:
             json.dump(events, f)
 
@@ -372,9 +365,8 @@ async def event(ctx, action, *args):
         await ctx.send("❌ Les commandes disponibles sont :\n`join`, `info` et `leave`,\nainsi que `create` et `cancel` pour les modérateurs.")
 
 # Obtenir le lien d'invitation du serveur : $invite
-@bot.command()
+@bot.hybrid_command()
 async def invite(ctx):
-    await ctx.channel.purge(limit = 1)
     await ctx.send("🔗 Voici le lien d'invitation du serveur : https://discord.gg/7M2CUX7Qmw")
     await ctx.send("⚠️ Veuillez ne l'envoyer qu'à des personnes réellement intéressées, et ne pas le communiquer aux personnes qui se sont faites kick.")
 
@@ -384,25 +376,24 @@ async def hello(ctx):
     await ctx.send("Salut ! 👋")
 
 # Commande simple : $aide
-@bot.command()
+@bot.hybrid_command()
 async def aide(ctx):
-    await ctx.channel.purge(limit = 1)
     msg = (
         "Voici les commandes disponibles :\n"
-        "$invite — Fournit le lien d'invitation du serveur\n"
-        "$hello — Réponds Salut\n"
-        "$aide — Affiche ce message\n"
+        "invite — Fournit le lien d'invitation du serveur\n"
+        "hello — Réponds Salut\n"
+        "aide — Affiche ce message\n"
     )
 
     # Si l'auteur a le rôle "Modérateur", on ajoute les commandes modération
     if discord.utils.get(ctx.author.roles, name="Modérateur"):
         msg += (
             "\n🔧 Commandes Modération :\n"
-            "$warn <@membre> <raison> — Avertit un membre\n"
-            "$kick <@membre> <raison> — Expulse un membre\n"
-            "$ban <@membre> <raison> — Bannit un membre\n"
-            "$mute <@membre> <raison> — Rend muet (texte)\n"
-            "$unmute <@membre> — Enlève le rôle Muet\n"
+            "warn <@membre> <raison> — Avertit un membre\n"
+            "kick <@membre> <raison> — Expulse un membre\n"
+            "ban <@membre> <raison> — Bannit un membre\n"
+            "mute <@membre> <raison> — Rend muet (texte)\n"
+            "unmute <@membre> — Enlève le rôle Muet\n"
         )
 
     await ctx.send(msg)
