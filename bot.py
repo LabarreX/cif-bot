@@ -184,9 +184,6 @@ async def slowmode(ctx, seconds: int):
 @bot.hybrid_command(description = "Supprime les x derniers messages")
 @commands.has_role("Modérateur")
 async def clear(ctx, nombre: int):
-    # Supprime la commande de l'historique seulement si c'est en prefix ($)
-    if ctx.message:
-        await ctx.message.delete()
     deleted = await ctx.channel.purge(limit=nombre)
     confirmation = await ctx.send(f"✅ {len(deleted)} messages ont été supprimés.")
     await asyncio.sleep(2)
