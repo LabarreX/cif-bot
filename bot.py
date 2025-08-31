@@ -267,8 +267,9 @@ async def unmute(ctx, member: discord.Member):
 
 # Gestion des événements
 @bot.hybrid_command()
-async def event(ctx, action, *args):
+async def event(ctx, action, args):
     global events
+    args = args.split()
 
     if action == "create":
         if not discord.utils.get(ctx.author.roles, name="Modérateur"):
