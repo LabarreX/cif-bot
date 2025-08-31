@@ -44,6 +44,7 @@ except:
 # Lancement
 @bot.event
 async def on_ready():
+    await bot.tree.sync()
     print(f"✅ Connecté en tant que {bot.user}")
     await bot.change_presence(activity=discord.Game(name="aider le C.I.F."))
     event_reminder_loop.start()
@@ -378,7 +379,7 @@ async def invite(ctx):
     await ctx.send("⚠️ Veuillez ne l'envoyer qu'à des personnes réellement intéressées, et ne pas le communiquer aux personnes qui se sont faites kick.")
 
 # Dire bonjour : $hello
-@bot.command()
+@bot.hybrid_command()
 async def hello(ctx):
     await ctx.send("Salut ! 👋")
 
