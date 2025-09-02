@@ -123,7 +123,7 @@ async def on_member_join(member):
 
 @bot.hybrid_command(description="Accepter la présentation d'un nouveau membre")
 @commands.has_role("Modérateur")
-async def welcome(ctx, numbers: str = None):
+async def welcome(ctx, *, numbers: str = None):
     channel = ctx.channel
     guild = ctx.guild
 
@@ -155,7 +155,7 @@ async def welcome(ctx, numbers: str = None):
     # Si le modo a donné des numéros → split + parse
     if numbers:
         try:
-            indexes = [int(x) for x in numbers.split()]
+            indexes = [int(x) for x in numbers.split(",")]
             selected_messages = [member_messages[i - 1].content for i in indexes if 0 < i <= len(member_messages)]
         except ValueError:
             await ctx.send("❌ Merci de donner uniquement des nombres séparés par des espaces.")
