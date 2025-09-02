@@ -113,7 +113,7 @@ async def on_member_join(member):
     )
 
     await presentation_channel.send(
-        f"👋 Bienvenue {member.mention} !\nMerci d'écrire ici une petite **présentation** (prénom, classe, centres d’intérêt, etc.).\nUn modérateur te validera ensuite."
+        f"👋 Bienvenue {member.mention} !\nMerci d'écrire ici une petite **présentation** (prénom, classe, langage(s) favori(s), projets en cours, etc.).\nUn modérateur te validera ensuite."
     )
 
 
