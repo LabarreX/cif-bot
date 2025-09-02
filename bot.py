@@ -113,7 +113,7 @@ async def on_member_join(member):
     )
 
     await presentation_channel.send(
-        f"👋 Bienvenue {member.mention} !\nMerci d'écrire ici une petite **présentation** (prénom, centres d’intérêt, etc.).\nUn modérateur te validera ensuite. 😊"
+        f"👋 Bienvenue {member.mention} !\nMerci d'écrire ici une petite **présentation** (prénom, classe, centres d’intérêt, etc.).\nUn modérateur te validera ensuite."
     )
 
 
@@ -121,10 +121,9 @@ async def on_member_join(member):
 
 ### Modérateurs
 
-# Autorise la présentation d'un arrivant : $welcome
-@bot.hybrid_command(description = "Accepter la présentation d'un nouveau membre")
+@bot.hybrid_command(description="Accepter la présentation d'un nouveau membre")
 @commands.has_role("Modérateur")
-async def welcome(ctx):
+async def welcome(ctx, numbers: str = None):
     channel = ctx.channel
     guild = ctx.guild
 
@@ -145,22 +144,37 @@ async def welcome(ctx):
     membre_role = discord.utils.get(guild.roles, name="Membre")
     arrivant_role = discord.utils.get(guild.roles, name="Arrivant")
 
-    # Récupère le message de présentation le plus ancien de l'utilisateur
-    messages = [msg async for msg in channel.history(limit=50, oldest_first=True)]
-    user_message = next((m for m in messages if m.author == member), None)
+    # Récupère les messages du salon (ordre chronologique)
+    messages = [msg async for msg in channel.history(limit=100, oldest_first=True)]
+    member_messages = [m for m in messages if m.author == member]
 
-    if not user_message:
+    if not member_messages:
         await ctx.send("❌ Aucun message de présentation trouvé.")
         return
 
-    # Trouve le salon #présentation
+    # Si le modo a donné des numéros → split + parse
+    if numbers:
+        try:
+            indexes = [int(x) for x in numbers.split()]
+            selected_messages = [member_messages[i - 1].content for i in indexes if 0 < i <= len(member_messages)]
+        except ValueError:
+            await ctx.send("❌ Merci de donner uniquement des nombres séparés par des espaces.")
+            return
+    else:
+        # Sinon → prend seulement le premier message
+        selected_messages = [member_messages[0].content]
+
+    # Texte final
+    presentation_text = "\n".join(selected_messages)
+
+    # Trouve le salon public #présentation
     public_channel = discord.utils.get(guild.text_channels, name="👋🏻-présentation-👋🏻")
     if not public_channel:
         await ctx.send("❌ Le salon #présentation n'existe pas.")
         return
 
     # Transfère la présentation
-    await public_channel.send(f"**📣 Présentation de {member.mention} :**\n{user_message.content}")
+    await public_channel.send(f"**📣 Présentation de {member.mention} :**\n{presentation_text}")
 
     # Attribue le rôle "Membre" et retire "Arrivant"
     if membre_role:
