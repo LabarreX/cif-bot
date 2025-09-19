@@ -1,4 +1,3 @@
-# site_b/app.py
 import threading
 import time
 import random
