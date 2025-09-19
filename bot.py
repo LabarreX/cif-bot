@@ -67,7 +67,6 @@ def run_web():
     t.start()
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))  # PORT fourni par Render
 
-run_web()
 ########################################
 
 events = {}
@@ -464,4 +463,15 @@ async def on_command_error(ctx, error):
 
 #################### Bot Launch ####################
 
-bot.run(token)
+#################### Bot Launch ####################
+
+if __name__ == "__main__":
+    # Lancer Flask dans un thread séparé
+    web_thread = threading.Thread(target=run_web, daemon=True)
+    web_thread.start()
+
+    # Lancer le bot Discord
+    if not token:
+        print("❌ DISCORD_TOKEN manquant dans les variables d'environnement")
+    else:
+        bot.run(token)
