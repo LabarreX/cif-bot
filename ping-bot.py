@@ -2,7 +2,7 @@ import threading
 import time
 import random
 import requests
-from flask import Flask, jsonify
+from flask import *
 
 app = Flask(__name__)
 
@@ -15,7 +15,7 @@ UA = f"{SITE_NAME}-keepalive/1.0"
 
 @app.route("/")
 def index():
-    return f"{SITE_NAME} is alive and pinging {OTHER_SITE}", 200
+    return send_from_directory(".", "index.html")
 
 @app.route("/keepalive")
 def keepalive():
