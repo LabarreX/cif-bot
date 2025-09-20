@@ -17,6 +17,10 @@ UA = f"{SITE_NAME}-keepalive/1.0"
 def index():
     return send_from_directory(".", "index.html")
 
+@app.route("/logo.png")
+def image():
+    return send_from_directory(".", "logo.png")
+
 @app.route("/keepalive")
 def keepalive():
     return jsonify({"status": "ok", "site": SITE_NAME}), 200
