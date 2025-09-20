@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>C.I.F - Club Informatique de Franklin</title>
+  <style>
+
+:root{
+  --bg: #fff;
+  --card: #ffffff;
+  --accent: #e21919;
+  --accent-dark: #8b0d14;
+  --text: #0b0b0b;
+  --muted: #555555;
+  --border: #e6e6e6;
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0;
+  font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  background:var(--bg);
+  color:var(--text);
+  -webkit-font-smoothing:antialiased;
+}
+
+.site-header{
+  background: linear-gradient(90deg, var(--accent-dark), var(--accent), var(--accent-dark));
+  color: white;
+  padding:20px 20px;
+  box-shadow: 0 8px 30px rgba(193,18,31,0.12);
+}
+
+.header-inner{
+  max-width:1100px;
+  margin:0 auto;
+  display:flex;
+  align-items:center;
+  gap:50px;
+}
+
+.logo-box{
+  background:white;
+  padding:18px 8px 18px 8px;
+  margin-left: calc(15% - 30px);
+  border-radius:12px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  box-shadow:0 4px 12px rgba(0,0,0,0.08);
+}
+
+.logo{
+  height:200px;
+  width:auto;
+}
+
+.title-box{
+  flex:1;
+}
+
+.site-header h1{
+  margin:0 0 6px;
+  font-size:30px;
+  letter-spacing:0.2px;
+}
+
+.tagline{ 
+  margin:0; 
+  opacity:0.95; 
+  font-weight:500; 
+}
+
+.nav{
+  display:flex;
+  justify-content:center;
+  gap:18px;
+  background:transparent;
+  padding:12px 10px;
+  border-bottom:1px solid var(--border);
+}
+.nav a{
+  color:var(--text);
+  text-decoration:none;
+  padding:6px 10px;
+  border-radius:8px;
+  font-weight:600;
+}
+.nav a.active,
+.nav a:hover{
+  background: rgba(193,18,31,0.08);
+  color:var(--accent-dark);
+}
+
+.container{
+  max-width:1000px;
+  margin:28px auto;
+  padding:0 18px 48px;
+}
+
+.card{
+  background:var(--card);
+  border-radius:12px;
+  padding:20px;
+  box-shadow:0 6px 18px rgba(11,11,11,0.04);
+  margin-bottom:16px;
+  border:1px solid rgba(0,0,0,0.04);
+}
+.card h2{ margin:0 0 10px; color:var(--accent-dark); }
+
+.projects{
+  list-style: none;
+  padding:0;
+  margin:6px 0 0 0;
+}
+.projects li{
+  padding:6px 8px;
+  margin:8px 0;
+  border-radius:8px;
+  background: linear-gradient(180deg, rgba(0,0,0,0.02), rgba(0,0,0,0.01));
+  display:flex;
+  align-items:center;
+  font-weight:500;
+}
+
+/* Links */
+a{ color:var(--accent); text-decoration:none; }
+a:hover{ text-decoration:underline; }
+
+/* Footer */
+.site-footer{
+  text-align:center;
+  padding:18px 8px;
+  color:var(--muted);
+  font-size:14px;
+  border-top:1px solid var(--border);
+}
+
+/* Responsive */
+@media (max-width:600px){
+  .header-inner{
+    flex-direction:column;
+    text-align:center;
+    gap:10px;
+  }
+  .logo{
+    height:100px;
+  }
+  .logo-box{
+    background:white;
+    padding:10px 4px 10px 4px;
+    margin-left: calc(15% - 30px);
+    border-radius:8px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow:0 4px 12px rgba(0,0,0,0.08);
+    }
+}
+  </style>
+</head>
+<body>
+  <header class="site-header">
+  <div class="header-inner">
+    <div class="logo-box">
+      <img src="logo.png" alt="Logo CIF" class="logo">
+    </div>
+    <div class="title-box">
+      <h1>C.I.F — Club Informatique de Franklin</h1>
+      <p class="tagline">Apprendre, partager, coder — ensemble.</p>
+    </div>
+  </div>
+</header>
+
+
+  <nav class="nav">
+    <a href="#accueil" class="active">Accueil</a>
+    <a href="#projets">Projets</a>
+    <a href="#contact">Contact</a>
+  </nav>
+
+  <main class="container" id="accueil">
+    <section class="card">
+      <h2>Bienvenue</h2>
+      <p>Le CIF réunit depuis 2020 les passionnés d'informatique de Franklin. Rejoins-nous pour progresser, travailler sur des projets concrets, participer à des concours, et surtout t'amuser !</p>
+      <p>Tout niveau est le bienvenu, et que tu sois débutant ou expert, il y a toujours quelque chose à apprendre.</p>
+      <p>Les séances ont lieu les mardis et jeudis, de 12h30 à 13h30, en salle Multimedia.</p>
+    </section>
+
+    <section class="card" id="projets">
+      <h2>Projets</h2>
+      <p>Nous menons un certain nombre de projets :</p>
+      <ul class="projects">
+        <li>- Programmer des sites Internet</li>
+        <li>- Créer des jeux vidéos (avec Pygame, Unity, ou pour des NumWorks)</li>
+        <li>- Développer des intelligences artificielles (jeux vidéos, chatbots, ...)</li>
+        <li>- Participer à des concours (Prologin, OFI, ...)</li>
+        <li>- Apprendre à utiliser des outils de développement (GitHub, Visual Studio Code, ChatGPT (eh oui !), ...)</li>
+        <li>- Découvrir de nouveaux langages de programmation (Python, JavaScript, C++ ...)</li>
+        <li>- Mener des projets en autonomie</li>
+        <li>- S'entraîner via des sites comme France-IOI</li>
+        <li>- Et bien plus encore !</li>
+      </ul>
+    </section>
+
+    <section class="card" id="contact">
+      <h2>Contact</h2>
+      <p>Par mail : <a href="mailto:labarre.xavier@laposte.net">labarre.xavier@laposte.net</a></p>
+      <p>Notre serveur Discord : <a href="https://discord.gg/TAzjsjU3Qj">Rejoindre le serveur</a></p>
+      <p>Ou venez me voir directement en T2 !</p>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <p>&copy; C.I.F — Fait par Xavier LABARRE en 2025</p>
+  </footer>
+</body>
+</html>
