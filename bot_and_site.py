@@ -6,7 +6,7 @@ import datetime
 import json
 from dotenv import load_dotenv
 import threading
-from flask import Flask
+from flask import Flask, send_from_directory
 
 load_dotenv()
 token = os.getenv("DISCORD_TOKEN")
