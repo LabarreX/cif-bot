@@ -422,19 +422,3 @@ async def on_command_error(ctx, error):
     else:
         await ctx.send("❗ Une erreur est survenue. Raisons possibles :\n- Vous n'avez pas les permissions nécessaires.\n- Vous n'avez pas ou mal mentionné le membre.")
         raise error  # Affiche l'erreur dans la console pour le développeur
-
-
-#################### Bot Launch ####################
-
-#################### Bot Launch ####################
-
-if __name__ == "__main__":
-    # Lancer Flask dans un thread séparé
-    web_thread = threading.Thread(target=run_web, daemon=True)
-    web_thread.start()
-
-    # Lancer le bot Discord
-    if not token:
-        print("❌ DISCORD_TOKEN manquant dans les variables d'environnement")
-    else:
-        bot.run(token)
