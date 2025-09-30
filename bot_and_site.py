@@ -422,3 +422,10 @@ async def on_command_error(ctx, error):
     else:
         await ctx.send("❗ Une erreur est survenue. Raisons possibles :\n- Vous n'avez pas les permissions nécessaires.\n- Vous n'avez pas ou mal mentionné le membre.")
         raise error  # Affiche l'erreur dans la console pour le développeur
+
+#################### Bot Launch ####################
+
+def run_bot():
+    bot.run(token)
+
+threading.Thread(target=run_bot, daemon=True).start()
